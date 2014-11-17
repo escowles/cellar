@@ -35,7 +35,7 @@
 
 <br>
 
-<%= form_tag('/beers/new', method: 'get') do %>
+<%= form_tag('beers/new', method: 'get') do %>
   <%= text_field_tag 'q' %>
   <%= submit_tag 'Find Beer' %>
 <% end %>
