@@ -4,10 +4,11 @@
 <p>lookup: <input type="text" name="q"/> <input type="submit" value="lookup"/></p>
 </form>
 
-<% if params['q'] %>
+<% if params[:q].blank? %>
+  <%= render 'form' %>
+<% else %>
   <p>year, quantity</p>
-<% @options = lookup(params['q'])
-  @options.each do |opt| %>
+  <% @options.each do |opt| %>
     <%= form_for(@beer) do |f| %>
       <%= f.hidden_field :brewery, value: opt[:brewery] %>
       <%= f.hidden_field :location, value: opt[:location] %>
@@ -21,4 +22,4 @@
   <% end %>
 <% end %>
 
-<%= link_to 'Back', beers_path %>
+<%= link_to 'View Cellar', beers_path %>

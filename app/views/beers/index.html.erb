@@ -5,29 +5,28 @@
 <table>
   <thead>
     <tr>
+      <th></th>
       <th>Brewery</th>
       <th>Location</th>
       <th>Beer</th>
       <th>Style</th>
       <th>Year</th>
-      <th>#</th>
+      <th>Qty</th>
       <th>Notes</th>
-      <th colspan="2"></th>
     </tr>
   </thead>
 
   <tbody>
     <% @beers.each do |beer| %>
       <tr>
+        <td><%= link_to 'X', beer, method: :delete %></td>
         <td><%= beer.brewery %></td>
         <td><%= beer.location %></td>
-        <td><%= link_to beer.name, beer %></td>
+        <td><%= link_to beer.name, edit_beer_path(beer) %></td>
         <td><%= beer.style %></td>
         <td><%= beer.year %></td>
-        <td><%= beer.quantity %></td>
+        <td style="text-align: right;"><%= beer.quantity %></td>
         <td><%= beer.notes %></td>
-        <td><%= link_to 'Edit', edit_beer_path(beer) %></td>
-        <td><%= link_to 'Del', beer, method: :delete %></td>
       </tr>
     <% end %>
   </tbody>

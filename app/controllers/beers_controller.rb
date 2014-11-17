@@ -1,3 +1,7 @@
+require 'rest-client'
+require 'json'
+require 'cgi'
+
 class BeersController < ApplicationController
   before_action :set_beer, only: [:show, :edit, :update, :destroy]
 
@@ -15,6 +19,7 @@ class BeersController < ApplicationController
   # GET /beers/new
   def new
     @beer = Beer.new
+    @options = lookup( params[:q] )
   end
 
   # GET /beers/1/edit
@@ -70,5 +75,28 @@ class BeersController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def beer_params
       params.require(:beer).permit(:brewery, :location, :name, :style, :year, :quantity, :notes, :untappd)
+    end
+
+    def lookup( q )
+      options = Array.new
+      return options if q.blank?
+      url = "http://api.untappd.com/v4/search/beer?q=#{CGI.escape(q)}" +
+          "&client_id=#{ENV['UNTAPPD_CLIENT_ID']}" +
+          "&client_secret=#{ENV['UNTAPPD_CLIENT_SECRET']}"
+      json_txt = RestClient.get(url)
+      json_obj = JSON.parse(json_txt)
+      beers = json_obj["response"]["beers"]["items"]
+      beers.each do |beer|
+        brewery = beer['brewery']
+        location = brewery['location']
+        loc = brewery['country_name']
+        loc += "--#{location['brewery_state']}" if loc == 'United States'
+        loc += "--#{location['brewery_city']}"
+        option = { id: beer["beer"]["bid"], name: beer["beer"]["beer_name"],
+                   brewery: brewery['brewery_name'], location: loc,
+                   style: beer["beer"]["beer_style"] }
+        options << option
+      end
+      options
     end
 end
