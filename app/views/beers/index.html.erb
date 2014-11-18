@@ -36,4 +36,7 @@
   <%= text_field_tag 'q' %>
   <%= submit_tag 'Find Beer' %>
 <% end %>
-<p><%= link_to 'Sign Out', destroy_user_session_path, method: :delete %></p>
+<p>
+  <%= link_to 'Sign Out', destroy_user_session_path, method: :delete %>
+  <%= link_to 'Account',  edit_user_registration_path %>
+</p>

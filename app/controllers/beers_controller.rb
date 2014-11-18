@@ -67,6 +67,17 @@ class BeersController < ApplicationController
     end
   end
 
+  # GET /beers/checkout
+  # fetch untappd checkins for each user and remove beers that have been
+  # checked out
+  def checkout
+    @checkouts = Array.new
+    User.all.each do |user|
+      logger.warn user.inspect
+      @checkouts << {email: user.email, untappd_id: user.untappd_id}
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_beer

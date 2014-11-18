@@ -1,0 +1,4 @@
+<h1>Checkouts</h1>
+<% @checkouts.each do |checkout| %>
+  <p><%= checkout[:email] %>, <%= checkout[:untappd_id] %></p>
+<% end %>
