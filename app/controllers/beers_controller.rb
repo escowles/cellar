@@ -73,8 +73,40 @@ class BeersController < ApplicationController
   def checkout
     @checkouts = Array.new
     User.all.each do |user|
-      logger.warn user.inspect
-      @checkouts << {email: user.email, untappd_id: user.untappd_id}
+      url = untappd_url('/user/checkins/' + user.untappd_id)
+      if user.last_checkin.blank?
+        user.last_checkin = "0"
+      else
+        url += "max_id=#{user.last_checkin}"
+      end
+      json_txt = RestClient.get(url)
+      json_obj = JSON.parse(json_txt)
+      user_checkouts = Array.new
+      failed_checkouts = Array.new
+      #checkout_keyword = "#cellar" # XXX
+      checkout_keyword = "boozy"
+      checkin_max = 0
+      json_obj["response"]["checkins"]["items"].each do |checkin|
+        checkin_id = checkin['checkin_id']
+        checkin_max = checkin_id if checkin_id > checkin_max
+        if checkin['checkin_comment'].include? checkout_keyword and checkin_id > user.last_checkin.to_i
+          beer = Beer.find_by untappd: checkin['beer']['bid']
+          if ( beer.nil? )
+            failed_checkouts << checkin['beer']['beer_name']
+          else
+            beer.quantity = beer.quantity - 1
+            beer.save
+            user_checkouts << checkin['beer']['beer_name']
+          end
+        end
+      end
+      if checkin_max > user.last_checkin.to_i
+        user.last_checkin = checkin_max
+        user.save
+      end
+      @checkouts << { email: user.untappd_id,
+                      user_checkouts: user_checkouts,
+                      failed_checkouts: failed_checkouts }
     end
   end
 
@@ -92,9 +124,7 @@ class BeersController < ApplicationController
     def lookup( q )
       options = Array.new
       return options if q.blank?
-      url = "http://api.untappd.com/v4/search/beer?q=#{CGI.escape(q)}" +
-          "&client_id=#{ENV['UNTAPPD_CLIENT_ID']}" +
-          "&client_secret=#{ENV['UNTAPPD_CLIENT_SECRET']}"
+      url = untappd_url('/search/beer') + "q=#{CGI.escape(q)}"
       json_txt = RestClient.get(url)
       json_obj = JSON.parse(json_txt)
       beers = json_obj["response"]["beers"]["items"]
@@ -110,5 +140,9 @@ class BeersController < ApplicationController
         options << option
       end
       options
+    end
+
+    def untappd_url( path )
+      return "http://api.untappd.com/v4#{path}?client_id=#{ENV['UNTAPPD_CLIENT_ID']}&client_secret=#{ENV['UNTAPPD_CLIENT_SECRET']}&"
     end
 end

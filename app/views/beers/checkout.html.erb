@@ -1,4 +1,12 @@
 <h1>Checkouts</h1>
 <% @checkouts.each do |checkout| %>
-  <p><%= checkout[:email] %>, <%= checkout[:untappd_id] %></p>
+  <p><%= checkout[:email] %></p>
+  <ul>
+    <% checkout[:user_checkouts].each do |user_checkout| %>
+      <li><%= user_checkout %></li>
+    <% end %>
+    <% checkout[:failed_checkouts].each do |failed| %>
+      <li>failed: <%= failed %></li>
+    <% end %>
+  </ul>
 <% end %>

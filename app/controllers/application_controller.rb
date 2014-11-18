@@ -8,6 +8,6 @@ class ApplicationController < ActionController::Base
   protected
   def configure_permitted_parameters
     devise_parameter_sanitizer.for(:sign_up) << :untappd_id
-    devise_parameter_sanitizer.for(:account_update) << :untappd_id
+    devise_parameter_sanitizer.for(:account_update) << [:untappd_id, :last_checkin]
   end
 end
