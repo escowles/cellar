@@ -83,8 +83,7 @@ class BeersController < ApplicationController
       json_obj = JSON.parse(json_txt)
       user_checkouts = Array.new
       failed_checkouts = Array.new
-      #checkout_keyword = "#cellar" # XXX
-      checkout_keyword = "boozy"
+      checkout_keyword = "#cellar"
       checkin_max = 0
       json_obj["response"]["checkins"]["items"].each do |checkin|
         checkin_id = checkin['checkin_id']
